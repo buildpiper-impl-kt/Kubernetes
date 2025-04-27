@@ -1,0 +1,58 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: employee
+  namespace: employee
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: employee
+  template:
+    metadata:
+      labels:
+        app: employee
+    spec:
+      affinity:
+        podAntiAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            - labelSelector:
+                matchExpressions:
+                  - key: app
+                    operator: In
+                    values:
+                      - scylla
+              topologyKey: "kubernetes.io/hostname"
+      containers:
+        - name: employee
+          image: aayush808/employee-api:v8
+          ports:
+            - containerPort: 8080
+          env:
+          - name: data_url
+            valueFrom:
+              configMapKeyRef:
+                name: scylla-config
+                key: data_url
+          - name: redis_url
+            valueFrom:
+              configMapKeyRef:
+                name: scylla-config
+                key: redis_url
+
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: employee-service
+  namespace: employee
+spec:
+  ports:
+    - name: http
+      port: 80
+      targetPort: 8080
+  selector:
+    app: employee
+  type: LoadBalancer
+
