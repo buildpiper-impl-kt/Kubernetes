@@ -1,0 +1,58 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: salary
+  namespace: salary
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: salary
+  template:
+    metadata:
+      labels:
+        app: salary
+    spec:
+      affinity:
+        podAntiAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            - labelSelector:
+                matchExpressions:
+                  - key: app
+                    operator: In
+                    values:
+                      - scylla
+              topologyKey: "kubernetes.io/hostname"
+      containers:
+        - name: salary
+          image: aayush808/salary-api:v1
+          ports:
+            - containerPort: 8080
+          env:
+          - name: data_url
+            valueFrom:
+              configMapKeyRef:
+                name: scylla-config
+                key: data_url
+          - name: redis_url
+            valueFrom:
+              configMapKeyRef:
+                name: scylla-config
+                key: redis_url
+
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: salary-service
+  namespace: salary
+spec:
+  ports:
+    - name: http
+      port: 80
+      targetPort: 8080
+  selector:
+    app: salary
+  type: LoadBalancer
+
