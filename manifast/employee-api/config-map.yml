@@ -1,9 +1,0 @@
-apiVersion: v1
-kind: ConfigMap
-metadata:
-  name: scylla-config
-  namespace: employee
-data:
-  data_url: "some-scylla.database.svc.cluster.local"
-  redis_url: "some-redis.database.svc.cluster.local"
-  
