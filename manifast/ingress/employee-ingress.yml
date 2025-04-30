@@ -1,0 +1,17 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: employee-ingress
+  namespace: employee
+  ingressClassName: nginx
+  rules:
+  - host: bp.opstree.otms.com
+    http:
+      paths:
+      - path: /api/v1/employee/
+        pathType: ImplementationSpecific
+        backend:
+          service:
+            name: employee-service
+            port:
+              number: 80
