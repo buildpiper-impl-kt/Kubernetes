@@ -9,7 +9,7 @@ metadata:
     http:
       paths:
       - path: /api/v1/employee/
-        pathType: ImplementationSpecific
+        pathType: Prefix
         backend:
           service:
             name: employee-service
